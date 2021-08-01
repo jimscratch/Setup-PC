@@ -83,6 +83,11 @@ if ($confirmation -eq "yes") {
    cls
    $confirmation = Read-Host "Do you want to run powershell scripts? [yes\no]"
    if ($confirmation -eq "yes") {
+      mkdir "$home\Git"
+      mkdir "$home\Git\Remove-Bloatware"
+      mkdir "$home\Git\Remove-Windowsapps"
+      git clone "https://github.com/Zezypisa/Remove-Bloatware" "$home\Git\Remove-Bloatware"
+      git clone "https://github.com/Zezypisa/Remove-WindowsApps" "$home\Git\Remove-Windowsapps"
       & "$home\Git\Remove-Bloatware\Remove Bloatware.ps1"
       & "$home\Git\Remove-WindowsApps\Remove WindowsApps.ps1"
    }
@@ -202,6 +207,14 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKLM\SYSTEM\CurrentControlSet\Services\DoSvc" -Name "Start" -Value "3"
    }
 
+   #uninstall onedrive
+   cls
+   $confirmation = Read-Host "Do you want to uninstall onedrive? [yes\no]"
+   if ($confirmation -eq "yes") {
+      $onedrivepath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $onedrivepath
+   }
+
    #disable telemetry
    cls
    $confirmation = Read-Host "Do you want to disable telemetry? [yes\no]"
@@ -217,6 +230,13 @@ if ($confirmation -eq "yes") {
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\StartupAppTask"
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator"
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip"
+   }
+
+   #disable hibernation
+   cls
+   $confirmation = Read-Host "Do you want to disable hibernation? [yes\no]"
+   if ($confirmation -eq "yes") {
+      powercfg /hibernate off
    }
 
    #disable app permissions
