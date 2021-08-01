@@ -1,4 +1,4 @@
-# Setup-PC
+# Setup PC
 Reinstalls programs I use commonly use, and set registry information with a simple script
 
 Setup PC, verified safe, used, and created by Zezypisa.
