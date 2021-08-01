@@ -79,15 +79,6 @@ if ($confirmation -eq "yes") {
       pause
    }
 
-   #run anti-virus installer
-   cls
-   $confirmation = Read-Host "Do you want to install Norton? [yes\no]"
-   if ($confirmation -eq "yes") {
-      Write-Host "Running Norton Setup..."
-      & ".\N360Downloader.exe"
-      pause
-   }
-
    #run powershell scripts
    cls
    $confirmation = Read-Host "Do you want to run powershell scripts? [yes\no]"
