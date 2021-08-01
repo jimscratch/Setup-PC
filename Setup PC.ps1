@@ -79,17 +79,26 @@ if ($confirmation -eq "yes") {
       pause
    }
 
-   #run powershell scripts
+   #clone git repositories and run them
    cls
-   $confirmation = Read-Host "Do you want to run powershell scripts? [yes\no]"
+   $confirmation = Read-Host "Do you want to download and run powershell scripts? [yes\no]"
    if ($confirmation -eq "yes") {
       mkdir "$home\Git"
+      mkdir "$home\Git\List-Startup-Apps"
       mkdir "$home\Git\Remove-Bloatware"
       mkdir "$home\Git\Remove-Windowsapps"
+      mkdir "$home\Git\Setup-PC"
+      mkdir "$home\Git\Toggle-Programs"
+      git clone "https://github.com/Zezypisa/List-Startup-Apps" "$home\Git\List-Startup-Apps"
       git clone "https://github.com/Zezypisa/Remove-Bloatware" "$home\Git\Remove-Bloatware"
       git clone "https://github.com/Zezypisa/Remove-WindowsApps" "$home\Git\Remove-Windowsapps"
+      git clone "https://github.com/Zezypisa/Setup-PC" "$home\Git\Setup-PC"
+      git clone "https://github.com/Zezypisa/Toggle-Programs" "$home\Git\Toggle-Programs"
+      & "$home\Git\List-Startup-Apps\List Startup Apps.ps1"
       & "$home\Git\Remove-Bloatware\Remove Bloatware.ps1"
       & "$home\Git\Remove-WindowsApps\Remove WindowsApps.ps1"
+      # "$home\Git\Setup-PC\Setup PC.ps1"
+      & "$home\Git\Toggle-Programs\Toggle Programs.ps1"
    }
 
    #add scoop apps to context menu
