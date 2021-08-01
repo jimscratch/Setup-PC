@@ -174,6 +174,8 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "WebView" -Value "1"
       New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People"
       New-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -PropertyType "dword" -Name "PeopleBand" -Value "0"
+      Stop-Process -Name "explorer"
+      Start-Process -FilePath "C:\Windows\Explorer.exe"
    }
 
    #setup the desktop
