@@ -83,8 +83,8 @@ if ($confirmation -eq "yes") {
    cls
    $confirmation = Read-Host "Do you want to run powershell scripts? [yes\no]"
    if ($confirmation -eq "yes") {
-      & ".\Remove Bloatware.ps1"
-      & ".\Remove WindowsApps.ps1"
+      & "%USERPROFILE%\Git\Remove-Bloatware\Remove Bloatware.ps1"
+      & "%USERPROFILE%\Git\Remove-WindowsApps\Remove WindowsApps.ps1"
    }
 
    #add scoop apps to context menu
