@@ -51,16 +51,16 @@ if ($confirmation -eq "yes") {
    $confirmation = Read-Host "Do you want to install apps? [yes\no]"
    if ($confirmation -eq "yes") {
       Write-Host "Running Chrome Setup..."
-      & ".\ChromeSetup.exe"
+      & "D:\Downloads\ChromeSetup.exe"
       pause
       Write-Host "Running Discord Setup..."
-      & ".\DiscordSetup.exe"
+      & "D:\Downloads\DiscordSetup.exe"
       pause
       Write-Host "Running Logitech GHUB Setup..."
-      & ".\lghub_installer.exe"
+      & "D:\Downloads\lghub_installer.exe"
       pause
       Write-Host "Running Nvidia Geforce Experience Setup..."
-      & ".\GeForce_Experience_v3.20.5.70.exe"
+      & "D:\Downloads\GeForce_Experience_v3.20.5.70.exe"
       pause
    }
 
@@ -69,13 +69,13 @@ if ($confirmation -eq "yes") {
    $confirmation = Read-Host "Do you want to install game launchers? [yes\no]"
    if ($confirmation -eq "yes") {
       Write-Host "Running Steam Setup..."
-      & ".\SteamSetup.exe"
+      & "D:\Downloads\SteamSetup.exe"
       pause
       Write-Host "Running Epic Games Launcher Setup..."
-      & ".\EpicInstaller-10.15.2.msi"
+      & "D:\Downloads\EpicInstaller-10.15.2.msi"
       pause
       Write-Host "Running Ubisoft Connect Setup..."
-      & ".\UbisoftConnectInstaller.exe"
+      & "D:\Downloads\UbisoftConnectInstaller.exe"
       pause
    }
 
@@ -157,14 +157,20 @@ if ($confirmation -eq "yes") {
       New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open Windows Terminal Here\command" -PropertyType "String" -Name "(Default)" -Value '"%USERPROFILE%\scoop\apps\windows-terminal\current\WindowsTerminal.exe" "-d ."'
    }
    
-   #setup the taskbar
+   #setup the taskbar, desktop, and explorer?
    cls
-   $confirmation = Read-Host "Do you want to setup the taskbar? [yes\no]"
+   $confirmation = Read-Host "Do you want to setup the taskbar, desktop, and explorer? [yes\no]"
    if ($confirmation -eq "yes") {
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "AutoCheckSelect" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisablePreviewDesktop" -Value "1"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value "1"
-      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideIcons" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideIcons" -Value "1" 
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "IconsOnly" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ListViewAlphaSelect" -Value "1"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ListViewShadow" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MultiTaskingAltTabFilter" -Value "3"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCompColor" -Value "1"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCortanaButton" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowInfoTip" -Value "1"
@@ -181,23 +187,37 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSizeMove" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSmallIcons" -Value "1"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "WebView" -Value "1"
-      New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People"
-      New-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -PropertyType "dword" -Name "PeopleBand" -Value "0"
-      Stop-Process -Name "explorer"
-      Start-Process -FilePath "C:\Windows\Explorer.exe"
-   }
-
-   #setup the desktop
-   cls
-   $confirmation = Read-Host "Do you want to setup the desktop? [yes\no]"
-   if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers" -Name "BackgroundType" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers" -Name "BackgroundHistoryPath0" -Value "d:\downloads\halo reach - main menu 1.png"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "AutoColorization" -Value "1"
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallPaper" -Value "D:\Downloads\Halo Reach - Main Menu 1.png"
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallPaperOriginX" -Value "0"
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallPaperOriginY" -Value "0"
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallPaperStyle" -Value "10"
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "TileWallpaper" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "AccentColor" -Value "ff484a4c"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "AlwaysHibernateThumbnails" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "ColorizationAfterglow" -Value "c44c4a48"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "ColorizationAfterglowBalance" -Value "a"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "ColorizationBlurBalance" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "ColorizationColor" -Value "c44c4a48"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "ColorizationColorBalance" -Value "59"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "ColorizationGlassAttribute" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "ColorPrevalence" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "Composition" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "EnableWindowColorization" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes" -Name "ColorSetFromTheme" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Accent" -Name "AccentColorMenu" -Value "ff484a4c"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "ColorPrevalence" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Value "1"
+      OFTWARE\Microsoft\Windows\CurrentVersion\Themes
+      New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -PropertyType "dword" -Name "PeopleBand" -Value "0"
+      Stop-Process -Name "explorer"
+      Start-Process -FilePath "C:\Windows\Explorer.exe"
    }
 
    #disable notifications
@@ -216,14 +236,6 @@ if ($confirmation -eq "yes") {
    $confirmation = Read-Host "Do you want to disable delivery optimization? [yes\no]"
    if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKLM\SYSTEM\CurrentControlSet\Services\DoSvc" -Name "Start" -Value "3"
-   }
-
-   #uninstall onedrive
-   cls
-   $confirmation = Read-Host "Do you want to uninstall onedrive? [yes\no]"
-   if ($confirmation -eq "yes") {
-      $onedrivepath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe" -Name "UninstallString").UninstallString)
-      Invoke-Expression -ScriptBlock $onedrivepath
    }
 
    #disable telemetry
@@ -330,6 +342,14 @@ if ($confirmation -eq "yes") {
       New-Item -Path "HKCU:\Software\Classes\Directory\shell\openinfiles"
       New-Item -Path "HKCU:\Software\Classes\Directory\shell\openinfiles\command"
       New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\openinfiles\command" -PropertyType "String" -Name "(Default)" -Value '"%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe" "%1"'
+   }
+   
+   #uninstall onedrive
+   cls
+   $confirmation = Read-Host "Do you want to uninstall onedrive? [yes\no]"
+   if ($confirmation -eq "yes") {
+      $onedrivepath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $onedrivepath
    }
 
    #change power config to max
