@@ -28,6 +28,29 @@ if ($confirmation -eq "yes") {
       pause
    }
 
+   #set files as default
+   cls
+   $confirmation = Read-Host "Do you want to set Files (new) as default? [yes\no]"
+   if ($confirmation -eq "yes") {
+      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}"
+      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell"
+      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow"
+      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow\command"
+      New-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow\command" -PropertyType "String" -Name "(Default)" -Value "%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe"
+      New-Item -Path "HKCU:\Software\Classes\Directory\shell"
+      New-Item -Path "HKCU:\Software\Classes\Directory\shell\openinfiles"
+      New-Item -Path "HKCU:\Software\Classes\Directory\shell\openinfiles\command"
+      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\openinfiles\command" -PropertyType "String" -Name "(Default)" -Value '"%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe" "%1"'
+   }
+
+   #uninstall onedrive
+   cls
+   $confirmation = Read-Host "Do you want to uninstall onedrive? [yes\no]"
+   if ($confirmation -eq "yes") {
+      $onedrivepath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $onedrivepath
+   }
+
    #run scoop installers
    cls
    $confirmation = Read-Host "Do you want to install scoop apps? [yes\no]"
@@ -43,39 +66,6 @@ if ($confirmation -eq "yes") {
       scoop cleanup *
       scoop cache rm *
       scoop checkup
-      pause
-   }
-
-   #run apps installers
-   cls
-   $confirmation = Read-Host "Do you want to install apps? [yes\no]"
-   if ($confirmation -eq "yes") {
-      Write-Host "Running Chrome Setup..."
-      & "D:\Downloads\ChromeSetup.exe"
-      pause
-      Write-Host "Running Discord Setup..."
-      & "D:\Downloads\DiscordSetup.exe"
-      pause
-      Write-Host "Running Logitech GHUB Setup..."
-      & "D:\Downloads\lghub_installer.exe"
-      pause
-      Write-Host "Running Nvidia Geforce Experience Setup..."
-      & "D:\Downloads\GeForce_Experience_v3.20.5.70.exe"
-      pause
-   }
-
-   #run games installers
-   cls
-   $confirmation = Read-Host "Do you want to install game launchers? [yes\no]"
-   if ($confirmation -eq "yes") {
-      Write-Host "Running Steam Setup..."
-      & "D:\Downloads\SteamSetup.exe"
-      pause
-      Write-Host "Running Epic Games Launcher Setup..."
-      & "D:\Downloads\EpicInstaller-10.15.2.msi"
-      pause
-      Write-Host "Running Ubisoft Connect Setup..."
-      & "D:\Downloads\UbisoftConnectInstaller.exe"
       pause
    }
 
@@ -156,11 +146,50 @@ if ($confirmation -eq "yes") {
       New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open Windows Terminal Here" -PropertyType "String" -Name "Icon" -Value '"%USERPROFILE%\scoop\apps\windows-terminal\current\WindowsTerminal.exe"' 
       New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open Windows Terminal Here\command" -PropertyType "String" -Name "(Default)" -Value '"%USERPROFILE%\scoop\apps\windows-terminal\current\WindowsTerminal.exe" "-d ."'
    }
-   
-   #setup the taskbar, desktop, and explorer?
+
+   #run installers
    cls
-   $confirmation = Read-Host "Do you want to setup the taskbar, desktop, and explorer? [yes\no]"
+   $confirmation = Read-Host "Do you want to install apps? [yes\no]"
    if ($confirmation -eq "yes") {
+      Write-Host "Running Chrome Setup..."
+      & "D:\Downloads\ChromeSetup.exe"
+      pause
+      Write-Host "Running Discord Setup..."
+      & "D:\Downloads\DiscordSetup.exe"
+      pause
+      Write-Host "Running Logitech Gaming Hub Setup..."
+      & "D:\Downloads\lghub_installer.exe"
+      pause
+      Write-Host "Running Nvidia Geforce Experience Setup..."
+      & "D:\Downloads\GeForce_Experience_v3.20.5.70.exe"
+      pause
+      Write-Host "Running Steam Setup..."
+      & "D:\Downloads\SteamSetup.exe"
+      pause
+      Write-Host "Running Epic Games Launcher Setup..."
+      & "D:\Downloads\EpicInstaller-10.15.2.msi"
+      pause
+      Write-Host "Running Ubisoft Connect Setup..."
+      & "D:\Downloads\UbisoftConnectInstaller.exe"
+      pause
+   }
+
+   #setup power configuration
+   cls
+   $confirmation = Read-Host "Do you want to change power scheme? [yes\no]"
+   if ($confirmation -eq "yes") {
+      powercfg /hibernate off
+      powercfg -IMPORT "D:\Downloads\HighPerformance.pow"
+      powercfg -LIST
+      $confirmation = Read-Host "Please type in the Power Scheme GUID for High Performance"
+      powercfg -SETACTIVE $confirmation
+   }
+   
+   #setup settings
+   cls
+   $confirmation = Read-Host "Do you want to setup settings? [yes\no]"
+   if ($confirmation -eq "yes") {
+      #setup explorer + taskbar
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "AutoCheckSelect" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisablePreviewDesktop" -Value "1"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value "1"
@@ -189,12 +218,18 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "WebView" -Value "1"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers" -Name "BackgroundType" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers" -Name "BackgroundHistoryPath0" -Value "d:\downloads\halo reach - main menu 1.png"
+      New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -PropertyType "dword" -Name "PeopleBand" -Value "0"
+
+      #setup desktop
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "AutoColorization" -Value "1"
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallPaper" -Value "D:\Downloads\Halo Reach - Main Menu 1.png"
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallPaperOriginX" -Value "0"
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallPaperOriginY" -Value "0"
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallPaperStyle" -Value "10"
       Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "TileWallpaper" -Value "0"
+
+      #set color
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "AccentColor" -Value "ff484a4c"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "AlwaysHibernateThumbnails" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\DWM" -Name "ColorizationAfterglow" -Value "c44c4a48"
@@ -211,38 +246,41 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Accent" -Name "AccentColorMenu" -Value "ff484a4c"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Accent" -Name "AccentPalette" -Value "9B 9A 99 00 84 83 81 00 6D 6B 6A 00 4C 4A 48 00 36 35 33 00 26 25 24 00 19 19 19 00 10 7C 10 00"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Accent" -Name "StartColorMenu" -Value "ff333536 "
+      
+      #set dark theme
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "ColorPrevalence" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Value "1"
-      New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People"
-      New-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -PropertyType "dword" -Name "PeopleBand" -Value "0"
-      Stop-Process -Name "explorer"
-      Start-Process -FilePath "C:\Windows\Explorer.exe"
-   }
 
-   #disable notifications
-   cls
-   $confirmation = Read-Host "Do you want to disable notifications? [yes\no]"
-   if ($confirmation -eq "yes") {
+      #set mouse settings
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "ActiveWindowTracking" -Value "0"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "Beep" -Value "0"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "DoubleClickHeight" -Value "4"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "DoubleClickSpeed" -Value "500"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "DoubleClickWidth" -Value "4"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "ExtendedSounds" -Value "No"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseHoverHeight" -Value "4"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseHoverTime" -Value "400"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseHoverWidth" -Value "4"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSensitivity" -Value "10"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Value "0"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Value "0"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseTrails" -Value "0"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "SnapToDefaultButton" -Value "0"
+      Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "SwapMouseButtons" -Value "0"
+
+      #disable notifications
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "LockScreenToastEnabled" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"  -Name "SubscribedContent-310093Enabled" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"  -Name "SubscribedContent-338389Enabled" -Value "0"
-   }
 
-   #disable delivery optimization
-   cls
-   $confirmation = Read-Host "Do you want to disable delivery optimization? [yes\no]"
-   if ($confirmation -eq "yes") {
-      Set-ItemProperty -Path "HKLM\SYSTEM\CurrentControlSet\Services\DoSvc" -Name "Start" -Value "3"
-   }
+      #disable delivery optimization
+      Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DoSvc" -Name "Start" -Value "3"
 
-   #disable telemetry
-   cls
-   $confirmation = Read-Host "Do you want to disable telemetry? [yes\no]"
-   if ($confirmation -eq "yes") {
+      #disable telemetry
       cmd /c sc config "DiagTrack" start=disabled
       cmd /c sc stop "DiagTrack"
       cmd /c sc config "dmwappushservice" start=disabled
@@ -254,20 +292,8 @@ if ($confirmation -eq "yes") {
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\StartupAppTask"
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator"
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip"
-   }
 
-   #disable hibernation
-   cls
-   $confirmation = Read-Host "Do you want to disable hibernation? [yes\no]"
-   if ($confirmation -eq "yes") {
-      powercfg /hibernate off
-   }
-
-   #disable app permissions
-   cls
-   $confirmation = Read-Host "Do you want to run privacy scripts? [yes\no]"
-   if ($confirmation -eq "yes") {
-      #user
+      #set user app permissions
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments" -Name "Value" -Value "Deny" -Force
@@ -298,7 +324,7 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wiFiDirect" -Name "Value" -Value "Allow" -Force
 
-      #computer
+      #set computer app permissions
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments" -Name "Value" -Value "Deny" -Force
@@ -328,39 +354,6 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wiFiDirect" -Name "Value" -Value "Allow" -Force
-   }
-
-   #set files as default
-   cls
-   $confirmation = Read-Host "Do you want to set Files (new) as default? [yes\no]"
-   if ($confirmation -eq "yes") {
-      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}"
-      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell"
-      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow"
-      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow\command" -PropertyType "String" -Name "(Default)" -Value "%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe"
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell"
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell\openinfiles"
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell\openinfiles\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\openinfiles\command" -PropertyType "String" -Name "(Default)" -Value '"%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe" "%1"'
-   }
-   
-   #uninstall onedrive
-   cls
-   $confirmation = Read-Host "Do you want to uninstall onedrive? [yes\no]"
-   if ($confirmation -eq "yes") {
-      $onedrivepath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe" -Name "UninstallString").UninstallString)
-      Invoke-Expression -ScriptBlock $onedrivepath
-   }
-
-   #change power config to max
-   cls
-   $confirmation = Read-Host "Do you want to change power scheme? [yes\no]"
-   if ($confirmation -eq "yes") {
-      powercfg -IMPORT "D:\Downloads\HighPerformance.pow"
-      powercfg -LIST
-      $confirmation = Read-Host "Please type in the Power Scheme GUID for High Performance"
-      powercfg -SETACTIVE $confirmation
    }
 
    #finished 
