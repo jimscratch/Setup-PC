@@ -179,10 +179,10 @@ if ($confirmation -eq "yes") {
    $confirmation = Read-Host "Do you want to change power scheme? [yes\no]"
    if ($confirmation -eq "yes") {
       powercfg /hibernate off
-      powercfg -IMPORT "D:\Downloads\HighPerformance.pow"
-      powercfg -LIST
-      $confirmation = Read-Host "Please type in the Power Scheme GUID for High Performance"
-      powercfg -SETACTIVE $confirmation
+      powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
+      powercfg -list
+      $confirmation = Read-Host "Please paste in the Power Scheme GUID for High Performance"
+      powercfg -setactive $confirmation
    }
    
    #setup settings
