@@ -30,30 +30,37 @@ if ($confirmation -eq "yes") {
 
    #set files as default
    cls
-   $confirmation = Read-Host "Do you want to set Files (new) as default? [yes\no]"
+   $confirmation = Read-Host "Do you want to set Files (new) as default? [yes\no\undo]"
    if ($confirmation -eq "yes") {
-      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}"
-      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell"
-      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow"
-      New-Item -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow\command" -PropertyType "String" -Name "(Default)" -Value "%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe"
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell"
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell\openinfiles"
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell\openinfiles\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\openinfiles\command" -PropertyType "String" -Name "(Default)" -Value '"%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe" "%1"'
+      New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow\command" -PropertyType "String" -Name "(Default)" -Value "%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\openinfiles"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\openinfiles\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\openinfiles\command" -PropertyType "String" -Name "(Default)" -Value '"%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe" "%1"'
+   }
+   if ($confirmation -eq "undo") {
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}"
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\openinfiles"
    }
 
    #uninstall onedrive
    cls
-   $confirmation = Read-Host "Do you want to uninstall onedrive? [yes\no]"
+   $confirmation = Read-Host "Do you want to uninstall onedrive? [yes\no\undo]"
    if ($confirmation -eq "yes") {
-      $onedrivepath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe" -Name "UninstallString").UninstallString)
-      Invoke-Expression -ScriptBlock $onedrivepath
+      $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $uninstallpath
+   }
+   if ($confirmation -eq "undo") {
+      & "C:\Windows\SysWOW64\OneDriveSetup.exe"
    }
 
    #run scoop installers
    cls
-   $confirmation = Read-Host "Do you want to install scoop apps? [yes\no]"
+   $confirmation = Read-Host "Do you want to install scoop apps? [yes\no\undo]"
    if ($confirmation -eq "yes") {
       Set-ExecutionPolicy RemoteSigned -scope CurrentUser
       Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
@@ -68,17 +75,21 @@ if ($confirmation -eq "yes") {
       scoop checkup
       pause
    }
+   if ($confirmation -eq "undo") {
+      scoop uninstall scoop
+      Remove-Item -Path "~\scoop"
+   }
 
    #clone git repositories and run them
    cls
-   $confirmation = Read-Host "Do you want to download and run powershell scripts? [yes\no]"
+   $confirmation = Read-Host "Do you want to download and run powershell scripts? [yes\no\undo]"
    if ($confirmation -eq "yes") {
-      mkdir "~\Git"
-      mkdir "~\Git\List-Startup-Apps"
-      mkdir "~\Git\Remove-Bloatware"
-      mkdir "~\Git\Remove-Windowsapps"
-      mkdir "~\Git\Setup-PC"
-      mkdir "~\Git\Toggle-Programs"
+      New-Item -Path "~\Git"
+      New-Item -Path "~\Git\List-Startup-Apps"
+      New-Item -Path "~\Git\Remove-Bloatware"
+      New-Item -Path "~\Git\Remove-Windowsapps"
+      New-Item -Path "~\Git\Setup-PC"
+      New-Item -Path "~\Git\Toggle-Programs"
       git clone "https://github.com/Zezypisa/List-Startup-Apps" "~\Git\List-Startup-Apps"
       git clone "https://github.com/Zezypisa/Remove-Bloatware" "~\Git\Remove-Bloatware"
       git clone "https://github.com/Zezypisa/Remove-WindowsApps" "~\Git\Remove-Windowsapps"
@@ -90,111 +101,175 @@ if ($confirmation -eq "yes") {
       # "~\Git\Setup-PC\Setup PC.ps1"
       & "~\Git\Toggle-Programs\Toggle Programs.ps1"
    }
+   if ($confirmation -eq "undo") {
+      Remove-Item -Path "~\Git"
+   }
 
    #add scoop apps to context menu
    cls
-   $confirmation = Read-Host "Do you want to run context menu scripts? [yes\no]"
+   $confirmation = Read-Host "Do you want to run context menu scripts? [yes\no\undo]"
    if ($confirmation -eq "yes") {
       #notepad++
-      New-Item -Path "HKCU:\Software\Classes\*\shell\Open with Notepad++"
-      New-Item -Path "HKCU:\Software\Classes\*\shell\Open with Notepad++\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\*\shell\Open with Notepad++" -PropertyType "String" -Name "(Default)" -Value "Open with Notepad++"
-      New-ItemProperty -Path "HKCU:\Software\Classes\*\shell\Open with Notepad++" -PropertyType "String" -Name "Icon" -Value '"%USERPROFILE%\scoop\apps\notepadplusplus\current\notepad++.exe"'
-      New-ItemProperty -Path "HKCU:\Software\Classes\*\shell\Open with Notepad++\command" -PropertyType "String" -Name "(Current)" -Value '"%USERPROFILE%\scoop\apps\notepadplusplus\current\notepad++.exe" "%1"'
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell\Open with Notepad++"
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell\Open with Notepad++\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\Open with Notepad++" -PropertyType "String" -Name "(Default)" -Value "Open with Notepad++"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\Open with Notepad++" -PropertyType "String" -Name "Icon" -Value '"%USERPROFILE%\scoop\apps\notepadplusplus\current\notepad++.exe"'
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\Open with Notepad++\command" -PropertyType "String" -Name "(Default)" -Value '"%USERPROFILE%\scoop\apps\notepadplusplus\current\notepad++.exe" "%1"'
-      New-Item -Path "HKCU:\Software\Classes\Directory\Background\shell\Open with Notepad++"
-      New-Item -Path "HKCU:\Software\Classes\Directory\Background\shell\Open with Notepad++\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open with Notepad++" -PropertyType "String" -Name "(Default)" -Value "Open with Notepad++"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open with Notepad++" -PropertyType "String" -Name "Icon" -Value '"%USERPROFILE%\scoop\apps\notepadplusplus\current\notepad++.exe"'
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open with Notepad++\command" -PropertyType "String" -Name "(Default)" -Value '"%USERPROFILE%\scoop\apps\notepadplusplus\current\notepad++.exe" "%V"'
+      New-Item -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Notepad++"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Notepad++\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Notepad++" -PropertyType "String" -Name "(Default)" -Value "Open with Notepad++"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Notepad++" -PropertyType "String" -Name "Icon" -Value '"C:\Users\Zezy\scoop\apps\notepadplusplus\current\notepad++.exe"'
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Notepad++\command" -PropertyType "String" -Name "(Current)" -Value '"C:\Users\Zezy\scoop\apps\notepadplusplus\current\notepad++.exe" "%1"'
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Notepad++"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Notepad++\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Notepad++" -PropertyType "String" -Name "(Default)" -Value "Open with Notepad++"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Notepad++" -PropertyType "String" -Name "Icon" -Value '"C:\Users\Zezy\scoop\apps\notepadplusplus\current\notepad++.exe"'
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Notepad++\command" -PropertyType "String" -Name "(Default)" -Value '"C:\Users\Zezy\scoop\apps\notepadplusplus\current\notepad++.exe" "%1"'
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Notepad++"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Notepad++\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Notepad++" -PropertyType "String" -Name "(Default)" -Value "Open with Notepad++"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Notepad++" -PropertyType "String" -Name "Icon" -Value '"C:\Users\Zezy\scoop\apps\notepadplusplus\current\notepad++.exe"'
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Notepad++\command" -PropertyType "String" -Name "(Default)" -Value '"C:\Users\Zezy\scoop\apps\notepadplusplus\current\notepad++.exe" "%V"'
       
       #visual studio code
-      New-Item -Path "HKCU:\Software\Classes\*\shell\Open with Code"
-      New-Item -Path "HKCU:\Software\Classes\*\shell\Open with Code\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\*\shell\Open with Code" -PropertyType "String" -Name "(Default)" -Value "Open with Code"
-      New-ItemProperty -Path "HKCU:\Software\Classes\*\shell\Open with Code" -PropertyType "String" -Name "Icon" -Value '"%USERPROFILE%\scoop\apps\vscode\current\Code.exe"'
-      New-ItemProperty -Path "HKCU:\Software\Classes\*\shell\Open with Code\command" -PropertyType "String" -Name "(Default)" -Value '"%USERPROFILE%\scoop\apps\vscode\current\Code.exe" "%1"'
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell\Open with Code"
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell\Open with Code\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\Open with Code" -PropertyType "String" -Name "(Default)" -Value "Open with Code"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\Open with Code" -PropertyType "String" -Name "Icon" -Value '"%USERPROFILE%\scoop\apps\vscode\current\Code.exe"'
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\Open with Code\command" -PropertyType "String" -Name "(Default)" -Value '"%USERPROFILE%\scoop\apps\vscode\current\Code.exe" "%1"'
-      New-Item -Path "HKCU:\Software\Classes\Directory\Background\shell\Open with Code"
-      New-Item -Path "HKCU:\Software\Classes\Directory\Background\shell\Open with Code\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open with Code" -PropertyType "String" -Name "(Default)" -Value "Open with Code"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open with Code" -PropertyType "String" -Name "Icon" -Value '"%USERPROFILE%\scoop\apps\vscode\current\Code.exe"'
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open with Code\command" -PropertyType "String" -Name "(Default)" -Value '"%USERPROFILE%\scoop\apps\vscode\current\Code.exe" "%V"'
+      New-Item -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Code"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Code\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Code" -PropertyType "String" -Name "(Default)" -Value "Open with Code"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Code" -PropertyType "String" -Name "Icon" -Value '"C:\Users\Zezy\scoop\apps\vscode\current\Code.exe"'
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Code\command" -PropertyType "String" -Name "(Default)" -Value '"C:\Users\Zezy\scoop\apps\vscode\current\Code.exe" "%1"'
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Code"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Code\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Code" -PropertyType "String" -Name "(Default)" -Value "Open with Code"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Code" -PropertyType "String" -Name "Icon" -Value '"C:\Users\Zezy\scoop\apps\vscode\current\Code.exe"'
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Code\command" -PropertyType "String" -Name "(Default)" -Value '"C:\Users\Zezy\scoop\apps\vscode\current\Code.exe" "%1"'
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Code"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Code\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Code" -PropertyType "String" -Name "(Default)" -Value "Open with Code"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Code" -PropertyType "String" -Name "Icon" -Value '"C:\Users\Zezy\scoop\apps\vscode\current\Code.exe"'
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Code\command" -PropertyType "String" -Name "(Default)" -Value '"C:\Users\Zezy\scoop\apps\vscode\current\Code.exe" "%V"'
       
       #windows terminal
-      New-Item -Path "HKCU:\Software\Classes\*\shell\Open Windows Terminal Here"
-      New-Item -Path "HKCU:\Software\Classes\*\shell\Open Windows Terminal Here\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\*\shell\Open Windows Terminal Here" -PropertyType "String" -Name "(Default)" -Value "Open Windows Terminal Here"
-      New-ItemProperty -Path "HKCU:\Software\Classes\*\shell\Open Windows Terminal Here" -PropertyType "String" -Name "Icon" -Value '"%USERPROFILE%\scoop\apps\windows-terminal\current\WindowsTerminal.exe"' 
-      New-ItemProperty -Path "HKCU:\Software\Classes\*\shell\Open Windows Terminal Here\command" -PropertyType "String" -Name "(Default)" -Value '"%USERPROFILE%\scoop\apps\windows-terminal\current\WindowsTerminal.exe" "-d ."'
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell\Open Windows Terminal Here"
-      New-Item -Path "HKCU:\Software\Classes\Directory\shell\Open Windows Terminal Here\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\Open Windows Terminal Here" -PropertyType "String" -Name "(Default)" -Value "Open Windows Terminal Here"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\Open Windows Terminal Here" -PropertyType "String" -Name "Icon" -Value '"%USERPROFILE%\scoop\apps\windows-terminal\current\WindowsTerminal.exe"' 
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\shell\Open Windows Terminal Here\command" -PropertyType "String" -Name "(Default)" -Value '"%USERPROFILE%\scoop\apps\windows-terminal\current\WindowsTerminal.exe" "-d ."'
-      New-Item -Path "HKCU:\Software\Classes\Directory\Background\shell\Open Windows Terminal Here"
-      New-Item -Path "HKCU:\Software\Classes\Directory\Background\shell\Open Windows Terminal Here\command"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open Windows Terminal Here" -PropertyType "String" -Name "(Default)" -Value "Open Windows Terminal Here"
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open Windows Terminal Here" -PropertyType "String" -Name "Icon" -Value '"%USERPROFILE%\scoop\apps\windows-terminal\current\WindowsTerminal.exe"' 
-      New-ItemProperty -Path "HKCU:\Software\Classes\Directory\Background\shell\Open Windows Terminal Here\command" -PropertyType "String" -Name "(Default)" -Value '"%USERPROFILE%\scoop\apps\windows-terminal\current\WindowsTerminal.exe" "-d ."'
+      New-Item -Path "HKCU:\SOFTWARE\Classes\*\shell\Open Windows Terminal Here"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\*\shell\Open Windows Terminal Here\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\*\shell\Open Windows Terminal Here" -PropertyType "String" -Name "(Default)" -Value "Open Windows Terminal Here"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\*\shell\Open Windows Terminal Here" -PropertyType "String" -Name "Icon" -Value '"C:\Users\Zezy\scoop\apps\windows-terminal\current\WindowsTerminal.exe"' 
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\*\shell\Open Windows Terminal Here\command" -PropertyType "String" -Name "(Default)" -Value '"C:\Users\Zezy\scoop\apps\windows-terminal\current\WindowsTerminal.exe" "-d ."'
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open Windows Terminal Here"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open Windows Terminal Here\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open Windows Terminal Here" -PropertyType "String" -Name "(Default)" -Value "Open Windows Terminal Here"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open Windows Terminal Here" -PropertyType "String" -Name "Icon" -Value '"C:\Users\Zezy\scoop\apps\windows-terminal\current\WindowsTerminal.exe"' 
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open Windows Terminal Here\command" -PropertyType "String" -Name "(Default)" -Value '"C:\Users\Zezy\scoop\apps\windows-terminal\current\WindowsTerminal.exe" "-d ."'
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open Windows Terminal Here"
+      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open Windows Terminal Here\command"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open Windows Terminal Here" -PropertyType "String" -Name "(Default)" -Value "Open Windows Terminal Here"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open Windows Terminal Here" -PropertyType "String" -Name "Icon" -Value '"C:\Users\Zezy\scoop\apps\windows-terminal\current\WindowsTerminal.exe"' 
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open Windows Terminal Here\command" -PropertyType "String" -Name "(Default)" -Value '"C:\Users\Zezy\scoop\apps\windows-terminal\current\WindowsTerminal.exe" "-d ."'
+   }
+   if ($confirmation -eq "undo") {
+      #notepad++
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Notepad++"
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Notepad++"
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Notepad++"
+
+      #visual studio code
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\*\shell\Open with Code"
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open with Code"
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open with Code"
+
+      #windows terminal
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\*\shell\Open Windows Terminal Here"
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open Windows Terminal Here"
+      Remove-Item -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open Windows Terminal Here"
    }
 
    #run installers
    cls
-   $confirmation = Read-Host "Do you want to install apps? [yes\no]"
+   $confirmation = Read-Host "Do you want to install apps? [yes\no\undo]"
    if ($confirmation -eq "yes") {
+      #chrome
       Write-Host "Running Chrome Setup..."
       & "D:\Downloads\ChromeSetup.exe"
       pause
+
+      #discord
       Write-Host "Running Discord Setup..."
       & "D:\Downloads\DiscordSetup.exe"
       pause
+
+      #logitech ghub
       Write-Host "Running Logitech Gaming Hub Setup..."
       & "D:\Downloads\lghub_installer.exe"
       pause
+
+      #nvidia gfe
       Write-Host "Running Nvidia Geforce Experience Setup..."
       & "D:\Downloads\GeForce_Experience_v3.20.5.70.exe"
       pause
+
+      #steam
       Write-Host "Running Steam Setup..."
       & "D:\Downloads\SteamSetup.exe"
       pause
+
+      #epic games launcher
       Write-Host "Running Epic Games Launcher Setup..."
       & "D:\Downloads\EpicInstaller-10.15.2.msi"
       pause
+
+      #ubisoft connect
       Write-Host "Running Ubisoft Connect Setup..."
       & "D:\Downloads\UbisoftConnectInstaller.exe"
       pause
    }
+   if ($confirmation -eq "undo") {
+      #chrome
+      $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Google Chrome " -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $uninstallpath
+      pause
 
-   #setup power configuration
-   cls
-   $confirmation = Read-Host "Do you want to change power scheme? [yes\no]"
-   if ($confirmation -eq "yes") {
-      powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
-      powercfg -list
-      $confirmation = Read-Host "Please paste in the Power Scheme GUID for High Performance"
-      powercfg -setactive $confirmation
+      #discord
+      $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Discord" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $uninstallpath
+      pause
+
+      #logitech ghub
+      $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{521c89be-637f-4274-a840-baaf7460c2b2}" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $uninstallpath
+      pause
+
+      #nvidia gfe
+      $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{B2FE1952-0186-46C3-BAEC-A80AA35AC5B8}_Display.GFExperience" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $uninstallpath
+      pause
+
+      #steam
+      $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $uninstallpath
+      pause
+
+      #epic games launcher
+      $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{1D4EB18B-0FEE-444E-B4D1-6F2CFBC363E6}" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $uninstallpath
+      pause
+
+      #ubisoft connect
+      $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Uplay" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $uninstallpath
+      pause
    }
    
    #setup settings
    cls
-   $confirmation = Read-Host "Do you want to setup settings? [yes\no]"
+   $confirmation = Read-Host "Do you want to setup settings? [yes\no\undo]"
    if ($confirmation -eq "yes") {
+      #set power configuration
+      powercfg -duplicatescheme "e9a42b02-d5df-448d-aa00-03f14749eb61"
+      powercfg -list
+      $confirmation = Read-Host "Please paste in the Power Scheme GUID for Ultimate Performance"
+      powercfg -setactive $confirmation
+      powercfg /hibernate off
+
       #setup explorer
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value "1"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "AutoCheckSelect" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "IconsOnly" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value "1"
-      Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"
 
       #setup taskbar
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisablePreviewDesktop" -Value "1"
@@ -206,8 +281,6 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTypeOverlay" -Value "1"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_SearchFiles" -Value "2"
-      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Value "0"
-      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "StartMenuInit" -Value "d"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "StoreAppsOnTaskbar" -Value "1"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "StorePinningExperimentResult" -Value "1"
@@ -277,15 +350,6 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "LockScreenToastEnabled" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Value "0"
-      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"  -Name "SubscribedContent-310093Enabled" -Value "0"
-      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"  -Name "SubscribedContent-338389Enabled" -Value "0"
-
-      #disable delivery optimization
-      Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DoSvc" -Name "Start" -Value "3"
-
-      #disable bandwidth limit
-      New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Psched"
-      New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Psched" -PropertyType "dword" -Name "NonBestEffortLimit" -Value "0"
 
       #disable telemetry
       cmd /c sc config "DiagTrack" start=disabled
@@ -299,6 +363,44 @@ if ($confirmation -eq "yes") {
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\StartupAppTask"
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator"
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip"
+      
+      #disable delivery optimization
+      Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DoSvc" -Name "Start" -Value "3"
+
+      #disable bandwidth limit
+      New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Psched"
+      New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Psched" -PropertyType "dword" -Name "NonBestEffortLimit"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Psched" -Name "NonBestEffortLimit" -Value "0"
+
+      #disable advertising ID
+      New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo"
+      New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -PropertyType "dword" -Name "DisabledByGroupPolicy"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -Value "1"
+
+      #disable language ads
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Value "0"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "HttpAcceptLanguageOptOut" -Value "1"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Value "1"
+
+      #disable app tracking starting
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Value "0"
+
+      #disable suggested content in settings
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-310093Enabled" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338389Enabled" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Value "0"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Value "0"
+
+      #disable speech recognition
+      New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization"
+      New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization" -PropertyType "dword" -Name "AllowInputPersonalization"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization" -Name "AllowInputPersonalization" -Value "0"
+
+      #disable inking and typing personilzation
+      New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization"
+      New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization" -PropertyType "dword" -Name "RestrictImplicitTextCollection"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Value "1"
 
       #disable activity feed
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Value "0"
@@ -307,25 +409,25 @@ if ($confirmation -eq "yes") {
 
       #disable tailored experiences
       New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
-      New-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableTailoredExperiencesWithDiagnosticData" -PropertyType "dword" -Value "1"
-      
-      #disable advertising ID
-      New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo"
-      New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -PropertyType "dword" -Value "1"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -PropertyType "dword" -Name "DisableTailoredExperiencesWithDiagnosticData"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableTailoredExperiencesWithDiagnosticData" -Value "1"
       
       #disable error reporting
-      New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -PropertyType "dword" -Value "1"
+      New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -PropertyType "dword" -Name "Disabled"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Value "1"
       Disable-ScheduledTask -TaskName "Microsoft\Windows\Windows Error Reporting\QueueReporting"
-
-      #disable hibernation
-      powercfg /hibernate off
-      New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernateEnabled" -PropertyType "dword" -Value "0"
-      New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings"
-      New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -PropertyType "dword" -Value "0"
 
       #disable news feeds
       New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds"
-      New-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Value "0"
+      New-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -PropertyType "dword" -Name "EnableFeeds"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Value "0"
+      
+      #disable hibernation
+      New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings"
+      New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -PropertyType "dword" -Name "HibernateEnabled"
+      Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernateEnabled" -Value "0"
+      New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -PropertyType "dword" -Name "ShowHibernateOption"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Value "0"
 
       #set user app permissions
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity" -Name "Value" -Value "Deny" -Force
@@ -333,7 +435,7 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetooth" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync" -Name "Value" -Value "Allow" -Force
-      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\cellularData" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\chat" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\contacts" -Name "Value" -Value "Deny" -Force
@@ -350,7 +452,7 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\sensors.custom" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\serialCommunication" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\usb" -Name "Value" -Value "Allow" -Force
-      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userDataTasks" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\videosLibrary" -Name "Value" -Value "Deny" -Force
@@ -364,7 +466,7 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetooth" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync" -Name "Value" -Value "Allow" -Force
-      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\cellularData" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\chat" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\contacts" -Name "Value" -Value "Deny" -Force
@@ -381,11 +483,149 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\sensors.custom" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\serialCommunication" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\usb" -Name "Value" -Value "Allow" -Force
-      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userDataTasks" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\videosLibrary" -Name "Value" -Value "Deny" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam" -Name "Value" -Value "Deny" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wiFiDirect" -Name "Value" -Value "Allow" -Force
+   }
+   if ($confirmation -eq "undo") {
+      #set power configuration
+      powercfg -list
+      $confirmation = Read-Host "Please paste in the Power Scheme GUID for Balanced"
+      powercfg -setactive $confirmation
+      $confirmation = Read-Host "Please paste in the Power Scheme GUID for Ultimate Performance"
+      powercfg -delete $confirmation
+      powercfg -hibernate on
+
+      #enable notifications
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "LockScreenToastEnabled" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Value "1"
+
+      #enable telemetry
+      cmd /c sc config "DiagTrack" start=auto
+      cmd /c sc start "DiagTrack"
+      cmd /c sc config "dmwappushservice" start=auto
+      cmd /c sc start "dmwappushservice"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "Allow Telemetry" -Value "1"
+      Enable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser"
+      Enable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\PcaPatchDbTask"
+      Enable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\ProgramDataUpdater"
+      Enable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\StartupAppTask"
+      Enable-ScheduledTask -TaskName "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator"
+      Enable-ScheduledTask -TaskName "\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip"
+      
+      #enable delivery optimization
+      Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DoSvc" -Name "Start" -Value "3"
+
+      #enable bandwidth limit
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Psched" -PropertyType "dword" -Name "NonBestEffortLimit" -Value "1"
+
+      #enable advertising ID
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -PropertyType "dword" -Value "0"
+
+      #enable language ads
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Value "1"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "HttpAcceptLanguageOptOut" -Value "0"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Value "0"
+
+      #enable app tracking starting
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Value "1"
+
+      #enable suggested content in settings
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-310093Enabled" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338389Enabled" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Value "1"
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Value "1"
+
+      #enable speech recognition
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization" -Name "AllowInputPersonalization" -Value "1"
+
+      #enable inking and typing personilzation
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Value "0"
+
+      #enable activity feed
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Value "1"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Value "1"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Value "1"
+
+      #enable tailored experiences
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableTailoredExperiencesWithDiagnosticData" -Value "0"
+      
+      #enable error reporting
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Value "0"
+      Enable-ScheduledTask -TaskName "Microsoft\Windows\Windows Error Reporting\QueueReporting"
+
+      #enable news feeds
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Value "1"
+      
+      #disable hibernation
+      Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernateEnabled" -Value "1"
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Value "0"
+
+      #set user app permissions
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetooth" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\cellularData" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\chat" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\contacts" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\documentsLibrary" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\email" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\gazeInput" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\humanInterfaceDevice" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCall" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCallHistory" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\picturesLibrary" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\radios" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\sensors.custom" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\serialCommunication" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\usb" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userDataTasks" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\videosLibrary" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wiFiDirect" -Name "Value" -Value "Allow" -Force
+
+      #set computer app permissions
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetooth" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\cellularData" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\chat" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\contacts" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\documentsLibrary" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\email" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\gazeInput" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\humanInterfaceDevice" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCall" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCallHistory" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\picturesLibrary" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\radios" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\sensors.custom" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\serialCommunication" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\usb" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userDataTasks" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\videosLibrary" -Name "Value" -Value "Allow" -Force
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wiFiDirect" -Name "Value" -Value "Allow" -Force
    }
