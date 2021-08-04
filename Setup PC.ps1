@@ -268,11 +268,15 @@ if ($confirmation -eq "yes") {
    $confirmation = Read-Host "Do you want to setup settings? [yes\no\undo]"
    if ($confirmation -eq "yes") {
       #set power configuration
+      powercfg -list
+      $confirmation = Read-Host "Please paste in the Power Scheme GUID for Balanced"
+      powercfg -setactive $confirmation
+      powercfg -restoredefaultschemes
       powercfg -duplicatescheme "e9a42b02-d5df-448d-aa00-03f14749eb61"
       powercfg -list
       $confirmation = Read-Host "Please paste in the Power Scheme GUID for Ultimate Performance"
       powercfg -setactive $confirmation
-      powercfg /hibernate off
+      powercfg -hibernate off
 
       #setup explorer
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value "1"
@@ -507,8 +511,7 @@ if ($confirmation -eq "yes") {
       powercfg -list
       $confirmation = Read-Host "Please paste in the Power Scheme GUID for Balanced"
       powercfg -setactive $confirmation
-      $confirmation = Read-Host "Please paste in the Power Scheme GUID for Ultimate Performance"
-      powercfg -delete $confirmation
+      powercfg -restoredefaultschemes
       powercfg -hibernate on
 
       #enable notifications
