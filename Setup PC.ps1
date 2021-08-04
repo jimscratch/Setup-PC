@@ -201,6 +201,11 @@ if ($confirmation -eq "yes") {
       & "D:\Downloads\GeForce_Experience_v3.20.5.70.exe"
       pause
 
+      #elgato game capture
+      Write-Host "Running Elgato Game Capture Setup..."
+      & "D:\Downloads\GameCaptureSetup_3.70.51.3051_x64.msi"
+      pause
+
       #steam
       Write-Host "Running Steam Setup..."
       & "D:\Downloads\SteamSetup.exe"
@@ -234,6 +239,11 @@ if ($confirmation -eq "yes") {
 
       #nvidia gfe
       $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{B2FE1952-0186-46C3-BAEC-A80AA35AC5B8}_Display.GFExperience" -Name "UninstallString").UninstallString)
+      Invoke-Expression -ScriptBlock $uninstallpath
+      pause
+
+      #elgato game capture
+      $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{012C3D17-E621-4146-85C9-099B72C2AD67}" -Name "UninstallString").UninstallString)
       Invoke-Expression -ScriptBlock $uninstallpath
       pause
 
