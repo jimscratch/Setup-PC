@@ -249,20 +249,6 @@ if ($confirmation -eq "yes") {
    if ($confirmation -eq "yes") {
       #sset power configuration
       powercfg -hibernate off
-      powercfg -restoredefaultschemes
-      $profile_balanced = "381b4222-f694-41f0-9685-ff5bb260df2e"
-      powercfg -duplicatescheme "e9a42b02-d5df-448d-aa00-03f14749eb61"
-      $profile_ultimate = Read-Host "Please paste in the Power Scheme GUID for Ultimate Performance"
-      powercfg -duplicatescheme "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"
-      $profile_backup = Read-Host "Please paste in the Power Scheme GUID for High Performance"
-      powercfg -export "C:\ult.pow" $profile_ultimate
-      powercfg -setactive $profile_backup
-      powercfg -delete $profile_ultimate
-      powercfg -delete $profile_balanced
-      powercfg -import "C:\ult.pow" $profile_balanced
-      powercfg -setactive $profile_balanced
-      powercfg -delete $profile_backup
-      Remove-Item "C:\Ult.pow"
 
       #setup explorer
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value "1"
