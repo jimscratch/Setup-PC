@@ -11,7 +11,7 @@ if ($confirmation -eq "yes") {
    cls
    $confirmation = Read-Host "Do you want to update Windows? [yes\no]"
    if ($confirmation -eq "yes") {
-      start "ms-settings:"
+      Start-Process "ms-settings:"
    }
 
    #microsoft store apps
@@ -24,27 +24,7 @@ if ($confirmation -eq "yes") {
       Write-Host "Install MyAsus (https://www.microsoft.com/en-us/p/myasus/9n7r5s6b0zzh)"
       Write-Host "Install Xbox (https://www.microsoft.com/en-us/p/xbox/9mv0b5hzvk9z)"
       Write-Host "Install Xbox Game Bar (https://www.microsoft.com/en-us/p/xbox-game-bar/9nzkpstsnw4p)"
-      Write-Host "Install Files (https://www.microsoft.com/en-us/p/files/9nghp3dx8hdx)"
       pause
-   }
-
-   #set files as default
-   cls
-   $confirmation = Read-Host "Do you want to set Files (new) as default? [yes\no\undo]"
-   if ($confirmation -eq "yes") {
-      New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}"
-      New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell"
-      New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow"
-      New-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow\command"
-      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}\shell\opennewwindow\command" -PropertyType "String" -Name "(Default)" -Value "%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe"
-      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell"
-      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\openinfiles"
-      New-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\openinfiles\command"
-      New-ItemProperty -Path "HKCU:\SOFTWARE\Classes\Directory\shell\openinfiles\command" -PropertyType "String" -Name "(Default)" -Value '"%LOCALAPPDATA%\Microsoft\WindowsApps\files.exe" "%1"'
-   }
-   if ($confirmation -eq "undo") {
-      Remove-Item -Path "HKCU:\SOFTWARE\Classes\CLSID\{52205fd8-5dfb-447d-801a-d0b52f2e83e1}"
-      Remove-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\openinfiles"
    }
 
    #uninstall onedrive
@@ -267,16 +247,22 @@ if ($confirmation -eq "yes") {
    cls
    $confirmation = Read-Host "Do you want to setup settings? [yes\no\undo]"
    if ($confirmation -eq "yes") {
-      #set power configuration
-      powercfg -list
-      $confirmation = Read-Host "Please paste in the Power Scheme GUID for Balanced"
-      powercfg -setactive $confirmation
-      powercfg -restoredefaultschemes
-      powercfg -duplicatescheme "e9a42b02-d5df-448d-aa00-03f14749eb61"
-      powercfg -list
-      $confirmation = Read-Host "Please paste in the Power Scheme GUID for Ultimate Performance"
-      powercfg -setactive $confirmation
+      #sset power configuration
       powercfg -hibernate off
+      powercfg -restoredefaultschemes
+      $profile_balanced = "381b4222-f694-41f0-9685-ff5bb260df2e"
+      powercfg -duplicatescheme "e9a42b02-d5df-448d-aa00-03f14749eb61"
+      $profile_ultimate = Read-Host "Please paste in the Power Scheme GUID for Ultimate Performance"
+      powercfg -duplicatescheme "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"
+      $profile_backup = Read-Host "Please paste in the Power Scheme GUID for High Performance"
+      powercfg -export "C:\ult.pow" $profile_ultimate
+      powercfg -setactive $profile_backup
+      powercfg -delete $profile_ultimate
+      powercfg -delete $profile_balanced
+      powercfg -import "C:\ult.pow" $profile_balanced
+      powercfg -setactive $profile_balanced
+      powercfg -delete $profile_backup
+      Remove-Item "C:\Ult.pow"
 
       #setup explorer
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value "1"
@@ -284,6 +270,8 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "IconsOnly" -Value "0"
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value "1"
+
+      #remove 3d objects from this pc
       Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"
 
       #setup taskbar
@@ -367,10 +355,10 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Value "0"
 
       #disable telemetry
-      cmd /c sc config "DiagTrack" start=disabled
-      cmd /c sc stop "DiagTrack"
-      cmd /c sc config "dmwappushservice" start=disabled
-      cmd /c sc stop "dmwappushservice"
+      Set-Service -Name "DiagTrack" -StartupType "Disabled"
+      Stop-Service -Name "DiagTrack"
+      Set-Service -Name "dmwappushservice" -StartupType "Disabled"
+      Stop-Service -Name "dmwappushservice"
       New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -PropertyType "dword" -Name "Allow Telemetry" -Value "0"
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser"
       Disable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\PcaPatchDbTask"
@@ -508,11 +496,11 @@ if ($confirmation -eq "yes") {
    }
    if ($confirmation -eq "undo") {
       #set power configuration
-      powercfg -list
-      $confirmation = Read-Host "Please paste in the Power Scheme GUID for Balanced"
-      powercfg -setactive $confirmation
       powercfg -restoredefaultschemes
       powercfg -hibernate on
+
+      #remove 3d objects from this pc
+      New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}"
 
       #enable notifications
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -Value "1"
@@ -520,10 +508,10 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Value "1"
 
       #enable telemetry
-      cmd /c sc config "DiagTrack" start=auto
-      cmd /c sc start "DiagTrack"
-      cmd /c sc config "dmwappushservice" start=auto
-      cmd /c sc start "dmwappushservice"
+      Set-Service -Name "DiagTrack" -StartupType "Automatic"
+      Start-Service -Name "DiagTrack"
+      Set-Service -Name "dmwappushservice" -StartupType "Automatic"
+      Start-Service -Name "dmwappushservice"
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "Allow Telemetry" -Value "1"
       Enable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser"
       Enable-ScheduledTask -TaskName "\Microsoft\Windows\Application Experience\PcaPatchDbTask"
