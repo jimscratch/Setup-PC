@@ -482,7 +482,6 @@ if ($confirmation -eq "yes") {
    }
    if ($confirmation -eq "undo") {
       #set power configuration
-      powercfg -restoredefaultschemes
       powercfg -hibernate on
 
       #remove 3d objects from this pc
