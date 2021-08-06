@@ -13,10 +13,11 @@ if ($confirmation -eq "yes") {
    if ($confirmation -eq "yes") {
       Start-Process "ms-settings:"
    }
+   pause
 
    #microsoft store apps
    cls
-   $confirmation = Read-Host "Do you want to install microsoft store? [yes\no]"
+   $confirmation = Read-Host "Do you want to install microsoft store apps? [yes\no\undo]"
    if ($confirmation -eq "yes") {
       Write-Host "Install Nvidia Control Panel (https://www.microsoft.com/en-us/p/nvidia-control-panel/9nf8h0h7wmlt)"
       Write-Host "Install Realtek Audio Console (https://www.microsoft.com/en-us/p/realtek-audio-control/9p2b8mcsvpln)"
@@ -24,8 +25,17 @@ if ($confirmation -eq "yes") {
       Write-Host "Install MyAsus (https://www.microsoft.com/en-us/p/myasus/9n7r5s6b0zzh)"
       Write-Host "Install Xbox (https://www.microsoft.com/en-us/p/xbox/9mv0b5hzvk9z)"
       Write-Host "Install Xbox Game Bar (https://www.microsoft.com/en-us/p/xbox-game-bar/9nzkpstsnw4p)"
-      pause
    }
+   if ($confirmation -eq "undo") {
+      Get-AppxPackage -Name "*NVIDIACorp.NVIDIAControlPanel*" | Remove-AppxPackage -ErrorAction SilentlyContinue
+      Get-AppxPackage -Name "*RealtekSemiconductorCorp.RealtekAudioControl*" | Remove-AppxPackage -ErrorAction SilentlyContinue
+      Get-AppxPackage -Name "*B9ECED6F.ArmouryCrate*" | Remove-AppxPackage -ErrorAction SilentlyContinue
+      Get-AppxPackage -Name "*B9ECED6F.ASUSPCAssistant*" | Remove-AppxPackage -ErrorAction SilentlyContinue
+      Get-AppxPackage -Name "*Microsoft.Xbox.TCUI*" | Remove-AppxPackage -ErrorAction SilentlyContinue
+      Get-AppxPackage -Name "*Microsoft.XboxGameOverlay*" | Remove-AppxPackage -ErrorAction SilentlyContinue
+      Get-AppxPackage -Name "*Microsoft.XboxGamingOverlay*"| Remove-AppxPackage -ErrorAction SilentlyContinue
+   }
+   pause
 
    #uninstall onedrive
    cls
@@ -37,6 +47,7 @@ if ($confirmation -eq "yes") {
    if ($confirmation -eq "undo") {
       & "C:\Windows\SysWOW64\OneDriveSetup.exe"
    }
+   pause
 
    #run scoop installers
    cls
@@ -53,12 +64,12 @@ if ($confirmation -eq "yes") {
       scoop cleanup *
       scoop cache rm *
       scoop checkup
-      pause
    }
    if ($confirmation -eq "undo") {
       scoop uninstall scoop
       Remove-Item -Path "~\scoop"
    }
+   pause
 
    #clone git repositories and run them
    cls
@@ -84,6 +95,7 @@ if ($confirmation -eq "yes") {
    if ($confirmation -eq "undo") {
       Remove-Item -Path "~\Git"
    }
+   pause
 
    #add scoop apps to context menu
    cls
@@ -156,6 +168,7 @@ if ($confirmation -eq "yes") {
       Remove-Item -Path "HKCU:\SOFTWARE\Classes\Directory\shell\Open Windows Terminal Here"
       Remove-Item -Path "HKCU:\SOFTWARE\Classes\Directory\Background\shell\Open Windows Terminal Here"
    }
+   pause
 
    #run installers
    cls
@@ -247,7 +260,7 @@ if ($confirmation -eq "yes") {
    cls
    $confirmation = Read-Host "Do you want to setup settings? [yes\no\undo]"
    if ($confirmation -eq "yes") {
-      #sset power configuration
+      #set power configuration
       powercfg -hibernate off
       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936" -Name "Attributes" -Value "0"
       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\4f971e89-eebd-4455-a8de-9e59040e7347\99ff10e7-23b1-4c07-a9d1-5c3206d741b4" -Name "Attributes" -Value "0"
