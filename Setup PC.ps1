@@ -1,4 +1,4 @@
-#Invoke-Expression (New-Object System.Net.WebClient).DownloadString(https://raw.githubusercontent.com/Zezypisa/Setup-PC/main/Setup%20PC.ps1)
+#Invoke-Expression (New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/Zezypisa/Setup-PC/main/Setup%20PC.ps1")
 
 $host.UI.RawUI.WindowTitle = "Setup PC"
 #Reinstalls programs I use commonly use, and set registry information with a simple script
