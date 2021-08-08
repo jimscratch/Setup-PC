@@ -13,7 +13,7 @@ if ($confirmation -eq "yes") {
    cls
    $confirmation = Read-Host "Do you want to update Windows? [yes\no]"
    if ($confirmation -eq "yes") {
-      Start-Process "ms-settings:"
+      Start-Process -FilePath "ms-settings:"
    }
    pause
 
@@ -47,7 +47,7 @@ if ($confirmation -eq "yes") {
       Invoke-Expression -ScriptBlock $uninstallpath
    }
    if ($confirmation -eq "undo") {
-      & "C:\Windows\SysWOW64\OneDriveSetup.exe"
+      Start-Process -FilePath "C:\Windows\SysWOW64\OneDriveSetup.exe"
    }
    pause
 
@@ -78,21 +78,18 @@ if ($confirmation -eq "yes") {
    $confirmation = Read-Host "Do you want to download and run powershell scripts? [yes\no\undo]"
    if ($confirmation -eq "yes") {
       New-Item -Path "~\Git"
-      New-Item -Path "~\Git\List-Startup-Apps"
       New-Item -Path "~\Git\Remove-Bloatware"
       New-Item -Path "~\Git\Remove-Windowsapps"
       New-Item -Path "~\Git\Setup-PC"
       New-Item -Path "~\Git\Toggle-Programs"
-      git clone "https://github.com/Zezypisa/List-Startup-Apps" "~\Git\List-Startup-Apps"
       git clone "https://github.com/Zezypisa/Remove-Bloatware" "~\Git\Remove-Bloatware"
       git clone "https://github.com/Zezypisa/Remove-WindowsApps" "~\Git\Remove-Windowsapps"
       git clone "https://github.com/Zezypisa/Setup-PC" "~\Git\Setup-PC"
       git clone "https://github.com/Zezypisa/Toggle-Programs" "~\Git\Toggle-Programs"
-      & "~\Git\List-Startup-Apps\List Startup Apps.ps1"
-      & "~\Git\Remove-Bloatware\Remove Bloatware.ps1"
-      & "~\Git\Remove-WindowsApps\Remove WindowsApps.ps1"
-      # "~\Git\Setup-PC\Setup PC.ps1"
-      & "~\Git\Toggle-Programs\Toggle Programs.ps1"
+      Start-Process -FilePath "~\Git\Remove-Bloatware\Remove Bloatware.ps1"
+      Start-Process -FilePath "~\Git\Remove-WindowsApps\Remove WindowsApps.ps1"
+      #Start-Process -FilePath "~\Git\Setup-PC\Setup PC.ps1"
+      Start-Process -FilePath "~\Git\Toggle-Programs\Toggle Programs.ps1"
    }
    if ($confirmation -eq "undo") {
       Remove-Item -Path "~\Git"
@@ -178,42 +175,42 @@ if ($confirmation -eq "yes") {
    if ($confirmation -eq "yes") {
       #chrome
       Write-Host "Running Chrome Setup..."
-      & "D:\Downloads\ChromeSetup.exe"
+      Start-Process -FilePath "D:\Downloads\ChromeSetup.exe"
       pause
 
       #discord
       Write-Host "Running Discord Setup..."
-      & "D:\Downloads\DiscordSetup.exe"
+      Start-Process -FilePath "D:\Downloads\DiscordSetup.exe"
       pause
 
       #logitech ghub
       Write-Host "Running Logitech Gaming Hub Setup..."
-      & "D:\Downloads\lghub_installer.exe"
+      Start-Process -FilePath "D:\Downloads\lghub_installer.exe"
       pause
 
       #nvidia gfe
       Write-Host "Running Nvidia Geforce Experience Setup..."
-      & "D:\Downloads\GeForce_Experience_v3.20.5.70.exe"
+      Start-Process -FilePath "D:\Downloads\GeForce_Experience_v3.20.5.70.exe"
       pause
 
       #elgato game capture
       Write-Host "Running Elgato Game Capture Setup..."
-      & "D:\Downloads\GameCaptureSetup_3.70.51.3051_x64.msi"
+      Start-Process -FilePath "D:\Downloads\GameCaptureSetup_3.70.51.3051_x64.msi"
       pause
 
       #steam
       Write-Host "Running Steam Setup..."
-      & "D:\Downloads\SteamSetup.exe"
+      Start-Process -FilePath "D:\Downloads\SteamSetup.exe"
       pause
 
       #epic games launcher
       Write-Host "Running Epic Games Launcher Setup..."
-      & "D:\Downloads\EpicInstaller-10.15.2.msi"
+      Start-Process -FilePath "D:\Downloads\EpicInstaller-10.15.2.msi"
       pause
 
       #ubisoft connect
       Write-Host "Running Ubisoft Connect Setup..."
-      & "D:\Downloads\UbisoftConnectInstaller.exe"
+      Start-Process -FilePath "D:\Downloads\UbisoftConnectInstaller.exe"
       pause
    }
    if ($confirmation -eq "undo") {
@@ -640,6 +637,38 @@ if ($confirmation -eq "yes") {
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData" -Name "Value" -Value "Allow" -Force
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wiFiDirect" -Name "Value" -Value "Allow" -Force
    }
+   $confirmation = Read-Host "Do you want to list startup apps? [yes\no]"
+   if ($confirmation -eq "yes") {
+      #user
+      cls
+      Write-Host "Current User"
+      Get-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+      Get-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce"
+      Get-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
+      Get-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32"
+      Get-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
+      Get-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run"
+      pause
+
+      #pc
+      cls
+      Write-Host "Local Machine"
+      Get-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+      Get-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce"
+      Get-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
+      Get-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32"
+      Get-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
+      Get-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run"
+      pause
+      
+      #64 bit only
+      cls
+      Write-Host "64 Bit"
+      Get-Item -Path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run"
+      Get-Item -Path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce"
+      pause
+      exit
+}
 
    #finished 
    Write-Host "Finished."
