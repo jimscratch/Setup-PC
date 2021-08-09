@@ -195,6 +195,10 @@ function Apps-Install {
    Start-Process -FilePath "D:\Downloads\GameCaptureSetup_3.70.51.3051_x64.msi"
    pause
 
+   #resolve
+   Write-Host "Running Resolve Setup..."
+   Start-Process -FilePath "D:\Downloads\DaVinci_Resolve_17.1_Windows.exe"
+
    #steam
    Write-Host "Running Steam Setup..."
    Start-Process -FilePath "D:\Downloads\SteamSetup.exe"
@@ -233,6 +237,11 @@ function Apps-Uninstall {
 
    #elgato game capture
    $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{012C3D17-E621-4146-85C9-099B72C2AD67}" -Name "UninstallString").UninstallString)
+   Invoke-Expression -ScriptBlock $uninstallpath
+   pause
+
+   #resolve
+   $uninstallpath = [ScriptBlock]::Create((Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{E6C9DAB6-0743-42CD-8647-08D9FC2E1994}" -Name "UninstallString").UninstallString)
    Invoke-Expression -ScriptBlock $uninstallpath
    pause
 
